@@ -7,6 +7,7 @@ export default function Home() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/projects`)
@@ -59,12 +60,79 @@ export default function Home() {
           <div className="projects-grid">
             {projects.map((project) => (
               <div key={project.id} className="scroll-reveal">
-                <ProjectCard project={project} />
+                <ProjectCard 
+                  project={project} 
+                  onOpenDetails={setSelectedProject} 
+                />
               </div>
             ))}
           </div>
         )}
       </section>
+
+      {/* Project Details Modal (Single Project Page / View) */}
+      {selectedProject && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setSelectedProject(null)}
+        >
+          <div 
+            className="modal-content" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="modal-close-btn" 
+              onClick={() => setSelectedProject(null)}
+              aria-label="Close details"
+            >
+              &times;
+            </button>
+            
+            <img 
+              src={selectedProject.imageUrl.startsWith('http') ? selectedProject.imageUrl : `${API_BASE}${selectedProject.imageUrl}`} 
+              alt={selectedProject.title} 
+              className="modal-image"
+            />
+            
+            <h2 className="project-card-title" style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>
+              {selectedProject.title}
+            </h2>
+            
+            <p className="project-card-desc" style={{ fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+              {selectedProject.description}
+            </p>
+
+            {/* Tools & Skills Used Section */}
+            <h3 className="detail-section-title">Tools &amp; Skills Used</h3>
+            <div className="detail-tags">
+              {selectedProject.techStack ? (
+                selectedProject.techStack.split(',').map((tag) => tag.trim()).filter((tag) => tag.length > 0).map((tag, index) => (
+                  <span key={index} className="detail-tag-chip">
+                    <span className="detail-tag-dot" />
+                    {tag}
+                  </span>
+                ))
+              ) : (
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>None specified</span>
+              )}
+            </div>
+
+            {selectedProject.projectUrl && (
+              <div style={{ marginTop: '2rem' }}>
+                <a 
+                  href={selectedProject.projectUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn btn-primary project-view-btn"
+                  style={{ width: '100%', padding: '0.85rem' }}
+                >
+                  Visit Project Link
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

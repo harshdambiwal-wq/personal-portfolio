@@ -5,17 +5,27 @@ export default function Bio() {
   const fullName = "Harsh Ashish Dambiwal";
 
   useEffect(() => {
+    let isMounted = true;
+    let currentText = "";
     let index = 0;
     setTypedName('');
-    const interval = setInterval(() => {
+
+    const typeCharacter = () => {
+      if (!isMounted) return;
       if (index < fullName.length) {
-        setTypedName((prev) => prev + fullName.charAt(index));
+        currentText += fullName.charAt(index);
+        setTypedName(currentText);
         index++;
-      } else {
-        clearInterval(interval);
+        setTimeout(typeCharacter, 80);
       }
-    }, 80); // 80ms typewriter delay
-    return () => clearInterval(interval);
+    };
+
+    const delayTimer = setTimeout(typeCharacter, 150);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(delayTimer);
+    };
   }, []);
 
   const skills = [

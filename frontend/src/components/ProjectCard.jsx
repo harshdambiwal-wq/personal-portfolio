@@ -1,7 +1,7 @@
 import React from 'react';
 import { API_BASE } from '../config';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onOpenDetails }) {
   // Check if image path is absolute or relative
   const imageSrc = project.imageUrl.startsWith('http') 
     ? project.imageUrl 
@@ -34,25 +34,14 @@ export default function ProjectCard({ project }) {
         )}
 
         <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
-          {project.projectUrl ? (
-            <a 
-              href={project.projectUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn btn-primary project-view-btn"
-              style={{ width: '100%' }}
-            >
-              View Project
-            </a>
-          ) : (
-            <button 
-              className="btn btn-secondary" 
-              style={{ width: '100%', cursor: 'default' }}
-              disabled
-            >
-              Internal Project
-            </button>
-          )}
+          <button 
+            type="button" 
+            className="btn btn-primary project-view-btn"
+            style={{ width: '100%' }}
+            onClick={() => onOpenDetails(project)}
+          >
+            View Details
+          </button>
         </div>
       </div>
     </article>
