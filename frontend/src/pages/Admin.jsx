@@ -11,7 +11,7 @@ export default function Admin({ setCurrentTab }) {
   const [projectUrl, setProjectUrl] = useState('');
   const [techStack, setTechStack] = useState('');
   const [featured, setFeatured] = useState(false);
-  const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   
   // Edit mode tracking
   const [editMode, setEditMode] = useState(false);
@@ -59,13 +59,9 @@ export default function Admin({ setCurrentTab }) {
     setProjectUrl(project.projectUrl || '');
     setTechStack(project.techStack || '');
     setFeatured(project.featured === 1);
-    setImage(null);
+    setImageUrl(project.imageUrl || '');
     setSubmitError(null);
     setSubmitSuccess(false);
-
-    // Reset file input element visually
-    const fileInput = document.getElementById('image-input');
-    if (fileInput) fileInput.value = '';
   };
 
   const handleCancelEdit = () => {
@@ -80,20 +76,13 @@ export default function Admin({ setCurrentTab }) {
     setProjectUrl('');
     setTechStack('');
     setFeatured(false);
-    setImage(null);
-    const fileInput = document.getElementById('image-input');
-    if (fileInput) fileInput.value = '';
+    setImageUrl('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description) {
-      setSubmitError('Title and description are required.');
-      return;
-    }
-
-    if (!editMode && !image) {
-      setSubmitError('A thumbnail image is required to publish a new project.');
+    if (!title || !description || !imageUrl) {
+      setSubmitError('Title, description, and thumbnail image URL are required.');
       return;
     }
 
@@ -101,15 +90,14 @@ export default function Admin({ setCurrentTab }) {
     setSubmitError(null);
     setSubmitSuccess(false);
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('projectUrl', projectUrl);
-    formData.append('techStack', techStack);
-    formData.append('featured', featured ? 'true' : 'false');
-    if (image) {
-      formData.append('image', image);
-    }
+    const payload = {
+      title,
+      description,
+      projectUrl,
+      techStack,
+      featured,
+      imageUrl
+    };
 
     try {
       const url = editMode 
@@ -121,9 +109,10 @@ export default function Admin({ setCurrentTab }) {
       const res = await fetch(url, {
         method: method,
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: formData
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -266,16 +255,15 @@ export default function Admin({ setCurrentTab }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="image-input">
-                Thumbnail Image {editMode ? '(Leave empty to keep existing)' : '*'}
-              </label>
+              <label className="form-label" htmlFor="imageUrl">Thumbnail Image URL *</label>
               <input 
-                type="file" 
-                id="image-input" 
+                type="url" 
+                id="imageUrl" 
                 className="form-input" 
-                accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
-                required={!editMode}
+                placeholder="https://images.unsplash.com/photo-..."
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                required
               />
             </div>
 

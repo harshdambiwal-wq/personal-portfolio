@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const db = require('./database');
 
@@ -12,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_12345';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-// Ensure uploads folder exists
+// Ensure uploads folder exists (legacy support if needed, but not used for new projects)
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -42,33 +41,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Multer Storage Configuration for Image Uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, 'project-' + uniqueSuffix + ext);
-  }
-});
-
-// Filter images only
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed!'), false);
-  }
-};
-
-const upload = multer({ 
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
-
 // --- ROUTES ---
 
 // 1. Admin Login
@@ -97,21 +69,16 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-// 3. Create a Project (Admin Protected)
-app.post('/api/projects', authenticateToken, upload.single('image'), async (req, res) => {
+// 3. Create a Project (Admin Protected - URL based thumbnail)
+app.post('/api/projects', authenticateToken, async (req, res) => {
   try {
-    const { title, description, projectUrl, techStack, featured } = req.body;
+    const { title, description, imageUrl, projectUrl, techStack, featured } = req.body;
     
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
+    if (!title || !description || !imageUrl) {
+      return res.status(400).json({ error: 'Title, description, and image URL are required' });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Project thumbnail image is required' });
-    }
-
-    const imageUrl = `/uploads/${req.file.filename}`;
-    const featuredFlag = featured === 'true' || featured === '1' ? 1 : 0;
+    const featuredFlag = featured === true || featured === 'true' || featured === 1 || featured === '1' ? 1 : 0;
 
     const result = await db.run(
       'INSERT INTO projects (title, description, imageUrl, projectUrl, techStack, featured) VALUES (?, ?, ?, ?, ?, ?)',
@@ -135,51 +102,40 @@ app.post('/api/projects', authenticateToken, upload.single('image'), async (req,
   }
 });
 
-// 4. Update a Project (Admin Protected)
-app.put('/api/projects/:id', authenticateToken, upload.single('image'), async (req, res) => {
+// 4. Update a Project (Admin Protected - URL based thumbnail)
+app.put('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, projectUrl, techStack, featured } = req.body;
+    const { title, description, imageUrl, projectUrl, techStack, featured } = req.body;
 
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Title and description are required' });
+    if (!title || !description || !imageUrl) {
+      return res.status(400).json({ error: 'Title, description, and image URL are required' });
     }
 
     // Check if project exists
-    const projects = await db.all('SELECT imageUrl FROM projects WHERE id = ?', [id]);
+    const projects = await db.all('SELECT id, imageUrl FROM projects WHERE id = ?', [id]);
     if (projects.length === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    const featuredFlag = featured === 'true' || featured === '1' ? 1 : 0;
+    const featuredFlag = featured === true || featured === 'true' || featured === 1 || featured === '1' ? 1 : 0;
 
-    if (req.file) {
-      // New image uploaded, delete old image file from disk
-      const oldImageUrl = projects[0].imageUrl;
+    // Delete old local image if it was local and we are replacing it
+    const oldImageUrl = projects[0].imageUrl;
+    if (oldImageUrl !== imageUrl && !oldImageUrl.startsWith('http')) {
       const oldFilename = path.basename(oldImageUrl);
       const oldFilepath = path.join(uploadsDir, oldFilename);
-
-      if (fs.existsSync(oldFilepath) && !oldImageUrl.startsWith('http')) {
+      if (fs.existsSync(oldFilepath)) {
         fs.unlinkSync(oldFilepath);
       }
-
-      const imageUrl = `/uploads/${req.file.filename}`;
-
-      await db.run(
-        'UPDATE projects SET title = ?, description = ?, imageUrl = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
-        [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, id]
-      );
-
-      return res.json({ id, title, description, imageUrl, projectUrl, techStack, featured: featuredFlag });
-    } else {
-      // No new image uploaded, keep old image
-      await db.run(
-        'UPDATE projects SET title = ?, description = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
-        [title, description, projectUrl || '', techStack || '', featuredFlag, id]
-      );
-
-      return res.json({ id, title, description, imageUrl: projects[0].imageUrl, projectUrl, techStack, featured: featuredFlag });
     }
+
+    await db.run(
+      'UPDATE projects SET title = ?, description = ?, imageUrl = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
+      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, id]
+    );
+
+    return res.json({ id, title, description, imageUrl, projectUrl, techStack, featured: featuredFlag });
   } catch (err) {
     console.error('Error updating project:', err);
     res.status(500).json({ error: 'Database error updating project' });
@@ -191,22 +147,24 @@ app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Find project to delete its image file from disk
+    // Find project to delete its image file from disk if it was local
     const projects = await db.all('SELECT imageUrl FROM projects WHERE id = ?', [id]);
     if (projects.length === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
     const imageUrl = projects[0].imageUrl;
-    const filename = path.basename(imageUrl);
-    const filepath = path.join(uploadsDir, filename);
 
     // Delete project from database
     await db.run('DELETE FROM projects WHERE id = ?', [id]);
 
-    // Attempt to delete file if it's local
-    if (fs.existsSync(filepath) && !imageUrl.startsWith('http')) {
-      fs.unlinkSync(filepath);
+    // Attempt to delete local file if it's local
+    if (!imageUrl.startsWith('http')) {
+      const filename = path.basename(imageUrl);
+      const filepath = path.join(uploadsDir, filename);
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath);
+      }
     }
 
     res.json({ message: 'Project deleted successfully' });
