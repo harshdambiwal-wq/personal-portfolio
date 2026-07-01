@@ -28,6 +28,29 @@ export default function Home() {
       });
   }, []);
 
+  // Scroll Reveal Animation Observer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal-active');
+            }
+          });
+        },
+        { threshold: 0.05, rootMargin: '0px 0px -50px 0px' }
+      );
+
+      const elements = document.querySelectorAll('.scroll-reveal');
+      elements.forEach((el) => observer.observe(el));
+
+      return () => observer.disconnect();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [projects]);
+
   return (
     <>
       <div className="scroll-reveal">
