@@ -693,3 +693,151 @@ body.light-mode .skill-tag:hover {
   background-color: rgba(99, 102, 241, 0.05);
 }
 
+/* Hide standard system cursor globally */
+html, body, a, button, input, select, textarea, [role="button"], .project-card, .skill-tag, .nav-dropdown-item {
+  cursor: none !important;
+}
+
+/* Hamburger Menu Toggler */
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  cursor: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.hamburger-btn:hover {
+  color: var(--primary-color);
+}
+
+/* Dropdown Menu Container */
+.nav-dropdown {
+  position: absolute;
+  top: 5rem;
+  right: 2rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  min-width: 180px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.nav-dropdown-item {
+  padding: 0.6rem 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: none !important;
+  transition: all 0.2s ease;
+}
+
+.nav-dropdown-item:hover {
+  background: rgba(88, 166, 255, 0.1);
+  color: var(--text-primary);
+  transform: scale(1.03) translateX(4px);
+}
+
+.settings-item {
+  border-top: 1px solid var(--panel-border);
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  color: rgba(88, 166, 255, 0.75) !important;
+  font-size: 0.85rem;
+}
+
+.settings-item:hover {
+  color: var(--primary-color) !important;
+  background: rgba(88, 166, 255, 0.05);
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-dropdown {
+  animation: slideDownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Project Tech Tags and Featured Badges */
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0;
+}
+
+.project-tag-pill {
+  font-size: 0.72rem;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  color: var(--primary-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #1f6feb;
+  color: #ffffff;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  border-radius: 20px;
+  font-weight: 700;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Typewriter flashing cursor */
+.typewriter-cursor {
+  display: inline-block;
+  color: var(--primary-color);
+  animation: blink 0.75s step-end infinite;
+  margin-left: 4px;
+}
+
+@keyframes blink {
+  from, to { color: transparent }
+  50% { color: var(--primary-color); }
+}
+
+/* Card and Button Hover lifters & blue glows */
+.project-card:hover {
+  transform: translateY(-6px) scale(1.06) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: var(--shadow-lg), 0 0 25px rgba(88, 166, 255, 0.25) !important;
+}
+
+.btn-primary:hover, .project-view-btn:hover {
+  box-shadow: 0 0 16px rgba(88, 166, 255, 0.5), 0 4px 20px rgba(88, 166, 255, 0.3) !important;
+  transform: scale(1.05) !important;
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+

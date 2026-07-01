@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE } from '../config';
+
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
 
 export default function Admin({ setCurrentTab }) {
   const [projects, setProjects] = useState([]);
+  
+  // Form inputs
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [projectUrl, setProjectUrl] = useState('');
+  const [techStack, setTechStack] = useState('');
+  const [featured, setFeatured] = useState(false);
   const [image, setImage] = useState(null);
   
+  // Edit mode tracking
+  const [editMode, setEditMode] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,10 +51,49 @@ export default function Admin({ setCurrentTab }) {
     setCurrentTab('home');
   };
 
+  const handleEditClick = (project) => {
+    setEditMode(true);
+    setEditingId(project.id);
+    setTitle(project.title);
+    setDescription(project.description);
+    setProjectUrl(project.projectUrl || '');
+    setTechStack(project.techStack || '');
+    setFeatured(project.featured === 1);
+    setImage(null);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    // Reset file input element visually
+    const fileInput = document.getElementById('image-input');
+    if (fileInput) fileInput.value = '';
+  };
+
+  const handleCancelEdit = () => {
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setEditMode(false);
+    setEditingId(null);
+    setTitle('');
+    setDescription('');
+    setProjectUrl('');
+    setTechStack('');
+    setFeatured(false);
+    setImage(null);
+    const fileInput = document.getElementById('image-input');
+    if (fileInput) fileInput.value = '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !image) {
-      setSubmitError('Title, description, and thumbnail image are required.');
+    if (!title || !description) {
+      setSubmitError('Title and description are required.');
+      return;
+    }
+
+    if (!editMode && !image) {
+      setSubmitError('A thumbnail image is required to publish a new project.');
       return;
     }
 
@@ -57,11 +105,21 @@ export default function Admin({ setCurrentTab }) {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('projectUrl', projectUrl);
-    formData.append('image', image);
+    formData.append('techStack', techStack);
+    formData.append('featured', featured ? 'true' : 'false');
+    if (image) {
+      formData.append('image', image);
+    }
 
     try {
-      const res = await fetch(`${API_BASE}/api/projects`, {
-        method: 'POST',
+      const url = editMode 
+        ? `${API_BASE}/api/projects/${editingId}`
+        : `${API_BASE}/api/projects`;
+      
+      const method = editMode ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method: method,
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -71,20 +129,11 @@ export default function Admin({ setCurrentTab }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to create project');
+        throw new Error(data.error || 'Request failed');
       }
 
       setSubmitSuccess(true);
-      setTitle('');
-      setDescription('');
-      setProjectUrl('');
-      setImage(null);
-      
-      // Reset file input element
-      const fileInput = document.getElementById('image-input');
-      if (fileInput) fileInput.value = '';
-      
-      // Refresh list
+      resetForm();
       fetchProjects();
     } catch (err) {
       console.error(err);
@@ -112,7 +161,10 @@ export default function Admin({ setCurrentTab }) {
         throw new Error(data.error || 'Failed to delete project');
       }
 
-      // Refresh list
+      if (editingId === id) {
+        resetForm();
+      }
+
       fetchProjects();
     } catch (err) {
       console.error(err);
@@ -132,13 +184,15 @@ export default function Admin({ setCurrentTab }) {
       </div>
 
       <div className="admin-grid">
-        {/* Upload Panel */}
+        {/* Form Panel */}
         <div className="admin-panel">
-          <h2 className="admin-panel-title">Add New Project</h2>
+          <h2 className="admin-panel-title">
+            {editMode ? 'Edit Project Details' : 'Add New Project'}
+          </h2>
           
           {submitSuccess && (
             <div className="alert alert-success">
-              🎉 Project added successfully!
+              🎉 Project {editMode ? 'updated' : 'added'} successfully!
             </div>
           )}
 
@@ -155,7 +209,7 @@ export default function Admin({ setCurrentTab }) {
                 type="text" 
                 id="title" 
                 className="form-input" 
-                placeholder="E.g. E-Commerce Platform"
+                placeholder="E.g. Fixed-Wing UAV Platform"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
@@ -175,6 +229,18 @@ export default function Admin({ setCurrentTab }) {
             </div>
 
             <div className="form-group">
+              <label className="form-label" htmlFor="techStack">Tech Stack / Tools (Comma-separated)</label>
+              <input 
+                type="text" 
+                id="techStack" 
+                className="form-input" 
+                placeholder="E.g. ROS, Isaac Sim, Unity, CAD"
+                value={techStack}
+                onChange={(e) => setTechStack(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
               <label className="form-label" htmlFor="projectUrl">Project URL (Demo/GitHub Link)</label>
               <input 
                 type="url" 
@@ -186,26 +252,52 @@ export default function Admin({ setCurrentTab }) {
               />
             </div>
 
+            <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.5rem 0' }}>
+              <input 
+                type="checkbox" 
+                id="featured" 
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+              <label className="form-label" htmlFor="featured" style={{ margin: 0, cursor: 'pointer' }}>
+                Mark as Featured Project
+              </label>
+            </div>
+
             <div className="form-group">
-              <label className="form-label" htmlFor="image-input">Thumbnail Image *</label>
+              <label className="form-label" htmlFor="image-input">
+                Thumbnail Image {editMode ? '(Leave empty to keep existing)' : '*'}
+              </label>
               <input 
                 type="file" 
                 id="image-input" 
                 className="form-input" 
                 accept="image/*"
                 onChange={(e) => setImage(e.target.files[0])}
-                required
+                required={!editMode}
               />
             </div>
 
-            <button 
-              type="submit" 
-              className="btn btn-primary" 
-              style={{ width: '100%', marginTop: '1rem' }}
-              disabled={loading}
-            >
-              {loading ? 'Uploading...' : 'Publish Project'}
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                style={{ flex: 1 }}
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : editMode ? 'Save Changes' : 'Publish Project'}
+              </button>
+              {editMode && (
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
@@ -231,15 +323,31 @@ export default function Admin({ setCurrentTab }) {
                       alt={project.title} 
                       className="admin-project-img"
                     />
-                    <span className="admin-project-name">{project.title}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span className="admin-project-name">{project.title}</span>
+                      {project.featured === 1 && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: '600' }}>
+                          ⭐ Featured
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => handleDelete(project.id)} 
-                    className="btn btn-danger"
-                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
-                  >
-                    Delete
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => handleEditClick(project)} 
+                      className="btn btn-secondary"
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(project.id)} 
+                      className="btn btn-danger"
+                      style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

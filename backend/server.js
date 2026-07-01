@@ -100,7 +100,7 @@ app.get('/api/projects', async (req, res) => {
 // 3. Create a Project (Admin Protected)
 app.post('/api/projects', authenticateToken, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, projectUrl } = req.body;
+    const { title, description, projectUrl, techStack, featured } = req.body;
     
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
@@ -110,12 +110,12 @@ app.post('/api/projects', authenticateToken, upload.single('image'), async (req,
       return res.status(400).json({ error: 'Project thumbnail image is required' });
     }
 
-    // Save relative image URL (e.g. /uploads/filename.jpg)
     const imageUrl = `/uploads/${req.file.filename}`;
+    const featuredFlag = featured === 'true' || featured === '1' ? 1 : 0;
 
     const result = await db.run(
-      'INSERT INTO projects (title, description, imageUrl, projectUrl) VALUES (?, ?, ?, ?)',
-      [title, description, imageUrl, projectUrl || '']
+      'INSERT INTO projects (title, description, imageUrl, projectUrl, techStack, featured) VALUES (?, ?, ?, ?, ?, ?)',
+      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag]
     );
 
     const newProject = {
@@ -123,7 +123,9 @@ app.post('/api/projects', authenticateToken, upload.single('image'), async (req,
       title,
       description,
       imageUrl,
-      projectUrl: projectUrl || ''
+      projectUrl: projectUrl || '',
+      techStack: techStack || '',
+      featured: featuredFlag
     };
 
     res.status(201).json(newProject);
@@ -133,7 +135,58 @@ app.post('/api/projects', authenticateToken, upload.single('image'), async (req,
   }
 });
 
-// 4. Delete a Project (Admin Protected)
+// 4. Update a Project (Admin Protected)
+app.put('/api/projects/:id', authenticateToken, upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, projectUrl, techStack, featured } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+
+    // Check if project exists
+    const projects = await db.all('SELECT imageUrl FROM projects WHERE id = ?', [id]);
+    if (projects.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    const featuredFlag = featured === 'true' || featured === '1' ? 1 : 0;
+
+    if (req.file) {
+      // New image uploaded, delete old image file from disk
+      const oldImageUrl = projects[0].imageUrl;
+      const oldFilename = path.basename(oldImageUrl);
+      const oldFilepath = path.join(uploadsDir, oldFilename);
+
+      if (fs.existsSync(oldFilepath) && !oldImageUrl.startsWith('http')) {
+        fs.unlinkSync(oldFilepath);
+      }
+
+      const imageUrl = `/uploads/${req.file.filename}`;
+
+      await db.run(
+        'UPDATE projects SET title = ?, description = ?, imageUrl = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
+        [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, id]
+      );
+
+      return res.json({ id, title, description, imageUrl, projectUrl, techStack, featured: featuredFlag });
+    } else {
+      // No new image uploaded, keep old image
+      await db.run(
+        'UPDATE projects SET title = ?, description = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
+        [title, description, projectUrl || '', techStack || '', featuredFlag, id]
+      );
+
+      return res.json({ id, title, description, imageUrl: projects[0].imageUrl, projectUrl, techStack, featured: featuredFlag });
+    }
+  } catch (err) {
+    console.error('Error updating project:', err);
+    res.status(500).json({ error: 'Database error updating project' });
+  }
+});
+
+// 5. Delete a Project (Admin Protected)
 app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -151,8 +204,8 @@ app.delete('/api/projects/:id', authenticateToken, async (req, res) => {
     // Delete project from database
     await db.run('DELETE FROM projects WHERE id = ?', [id]);
 
-    // Attempt to delete file
-    if (fs.existsSync(filepath)) {
+    // Attempt to delete file if it's local
+    if (fs.existsSync(filepath) && !imageUrl.startsWith('http')) {
       fs.unlinkSync(filepath);
     }
 

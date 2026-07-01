@@ -1,6 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function Bio() {
+  const [typedName, setTypedName] = useState('');
+  const fullName = "Harsh Ashish Dambiwal";
+
+  useEffect(() => {
+    let index = 0;
+    setTypedName('');
+    const interval = setInterval(() => {
+      if (index < fullName.length) {
+        setTypedName((prev) => prev + fullName.charAt(index));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 80); // 80ms typewriter delay
+    return () => clearInterval(interval);
+  }, []);
+
   const skills = [
     'UAV Design', 'XFLR5', 'Fusion360', 'ANSYS Workbench', 
     'ROS', 'NVIDIA Isaac Sim', 'MATLAB', 'Unity', 
@@ -11,7 +28,10 @@ export default function Bio() {
     <section className="bio-section">
       <div className="bio-content">
         <div className="bio-greeting">Hello, I'm</div>
-        <h1 className="bio-name">Harsh Ashish Dambiwal</h1>
+        <h1 className="bio-name">
+          {typedName}
+          <span className="typewriter-cursor">|</span>
+        </h1>
         <div className="bio-tagline">
           Mechanical Engineering Student '27 | UAV Design · CFD · Digital Twin · ROS | SAEISS DDC 2026 AIR 1
         </div>
@@ -19,7 +39,7 @@ export default function Bio() {
           Final year Mechanical Engineering student at MIT Academy of Engineering, Pune. Specialized in UAV Design, Aerodynamics, CFD simulation, and Digital Twin development. Vice Captain of Team Blitzkrieg — achieved AIR 1 at SAE DDC 2026 national level competition.
         </p>
 
-        <h3 className="skills-title">Core Skills</h3>
+        <h3 id="skills-section" className="skills-title">Core Skills</h3>
         <div className="skills-list">
           {skills.map((skill, index) => (
             <span key={index} className="skill-tag">{skill}</span>
