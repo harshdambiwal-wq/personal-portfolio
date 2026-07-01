@@ -27,8 +27,54 @@ function initializeDatabase() {
         console.error('Error creating table:', err.message);
       } else {
         console.log('Projects table initialized.');
+        seedDefaultProjects();
       }
     });
+  });
+}
+
+function seedDefaultProjects() {
+  db.get('SELECT COUNT(*) as count FROM projects', (err, row) => {
+    if (err) {
+      console.error('Error checking project count:', err.message);
+      return;
+    }
+    if (!row || row.count === 0) {
+      console.log('Database empty. Seeding default projects...');
+      const defaultProjects = [
+        {
+          title: 'Bi-Directional Digital Twin of SCARA Robot',
+          description: 'Built a real-time digital twin using ROS and NVIDIA Isaac Sim. Bidirectional communication between physical robot and simulation. Tools: ROS, Isaac Sim, MATLAB, Unity, Fusion360',
+          imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80',
+          projectUrl: 'https://github.com/harshdambiwal-wq'
+        },
+        {
+          title: 'VTOL UAV Design – SAE DDC',
+          description: 'Designed a two-motor VTOL UAV with aerodynamic analysis using XFLR5. Tools: CAD, XFLR5, Fusion360. Achieved AIR 1 at national competition.',
+          imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=600&q=80',
+          projectUrl: 'https://github.com/harshdambiwal-wq'
+        },
+        {
+          title: 'Improved Cold Storage System for Onion',
+          description: 'Designed ventilation crate and validated using ANSYS Workbench simulation to optimize airflow and temperature regulation.',
+          imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
+          projectUrl: 'https://github.com/harshdambiwal-wq'
+        },
+        {
+          title: 'Dye Sensitized Solar Cell Holder Design',
+          description: 'Adjustable DSSC holder for optimal light alignment and maximum energy absorption.',
+          imageUrl: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80',
+          projectUrl: 'https://github.com/harshdambiwal-wq'
+        }
+      ];
+
+      const stmt = db.prepare('INSERT INTO projects (title, description, imageUrl, projectUrl) VALUES (?, ?, ?, ?)');
+      defaultProjects.forEach((p) => {
+        stmt.run(p.title, p.description, p.imageUrl, p.projectUrl);
+      });
+      stmt.finalize();
+      console.log('Seeded 4 default projects.');
+    }
   });
 }
 

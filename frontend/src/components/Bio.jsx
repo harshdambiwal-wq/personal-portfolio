@@ -1,22 +1,39 @@
 import React from 'react';
 
 export default function Bio() {
+  const skills = [
+    'UAV Design', 'XFLR5', 'Fusion360', 'ANSYS Workbench', 
+    'ROS', 'NVIDIA Isaac Sim', 'MATLAB', 'Unity', 
+    'Python', 'ArduPilot/PX4', 'CAD'
+  ];
+
   return (
     <section className="bio-section">
       <div className="bio-content">
         <div className="bio-greeting">Hello, I'm</div>
-        <h1 className="bio-name">Alex Rivera</h1>
+        <h1 className="bio-name">Harsh Ashish Dambiwal</h1>
+        <div className="bio-tagline">
+          Mechanical Engineering Student '27 | UAV Design · CFD · Digital Twin · ROS | SAEISS DDC 2026 AIR 1
+        </div>
         <p className="bio-text">
-          A Full-Stack Developer passionate about crafting highly performant, accessible, and stunning digital experiences. I specialize in React, Node.js, and database design. Currently building modern applications for the web.
+          Final year Mechanical Engineering student at MIT Academy of Engineering, Pune. Specialized in UAV Design, Aerodynamics, CFD simulation, and Digital Twin development. Vice Captain of Team Blitzkrieg — achieved AIR 1 at SAE DDC 2026 national level competition.
         </p>
+
+        <h3 className="skills-title">Core Skills</h3>
+        <div className="skills-list">
+          {skills.map((skill, index) => (
+            <span key={index} className="skill-tag">{skill}</span>
+          ))}
+        </div>
+
         <div className="bio-cta">
           <a href="#projects" className="btn btn-primary" onClick={(e) => {
             e.preventDefault();
             document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
           }}>
-            Explore Work
+            Explore Projects
           </a>
-          <a href="mailto:alex@example.com" className="btn btn-secondary">
+          <a href="mailto:harshdambiwal.work@gmail.com" className="btn btn-secondary">
             Get In Touch
           </a>
         </div>

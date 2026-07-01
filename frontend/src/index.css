@@ -604,3 +604,58 @@ body.light-mode .alert-success {
     padding: 0 1rem;
   }
 }
+
+/* Skill Tags and Tagline styling */
+.bio-tagline {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+.skills-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  max-width: 700px;
+}
+
+@media (max-width: 768px) {
+  .skills-list {
+    justify-content: center;
+  }
+}
+
+.skill-tag {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.skill-tag:hover {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--glow-color);
+}
+
+body.light-mode .skill-tag:hover {
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
