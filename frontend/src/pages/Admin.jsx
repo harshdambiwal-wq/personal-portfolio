@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+import { API_BASE } from '../config';
 
 export default function Admin({ setCurrentTab }) {
   const [projects, setProjects] = useState([]);
