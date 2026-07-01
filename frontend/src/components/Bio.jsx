@@ -8,6 +8,7 @@ export default function Bio() {
     let isMounted = true;
     let currentText = "";
     let index = 0;
+    let timeoutId = null;
     setTypedName('');
 
     const typeCharacter = () => {
@@ -16,15 +17,15 @@ export default function Bio() {
         currentText += fullName.charAt(index);
         setTypedName(currentText);
         index++;
-        setTimeout(typeCharacter, 80);
+        timeoutId = setTimeout(typeCharacter, 80);
       }
     };
 
-    const delayTimer = setTimeout(typeCharacter, 150);
+    timeoutId = setTimeout(typeCharacter, 150);
 
     return () => {
       isMounted = false;
-      clearTimeout(delayTimer);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
