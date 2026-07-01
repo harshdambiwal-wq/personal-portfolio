@@ -1,28 +1,25 @@
 import React from 'react';
 
 export default function Navbar({ currentTab, setCurrentTab, isDarkMode, toggleTheme }) {
+  const handleHomeClick = () => {
+    setCurrentTab('home');
+  };
+
   return (
     <header className="navbar">
-      <div className="logo" onClick={() => setCurrentTab('home')}>
-        DevPortfolio
+      <div className="logo" onClick={handleHomeClick}>
+        Welcome to My Portfolio
       </div>
       <div className="nav-controls">
         <nav className="nav-links">
-          <span 
-            className={`nav-link ${currentTab === 'home' ? 'active' : ''}`} 
-            onClick={() => setCurrentTab('home')}
-          >
-            Home
-          </span>
-          <span 
-            className={`nav-link ${currentTab === 'admin' || currentTab === 'login' ? 'active' : ''}`} 
-            onClick={() => {
-              const token = localStorage.getItem('adminToken');
-              setCurrentTab(token ? 'admin' : 'login');
-            }}
-          >
-            Admin
-          </span>
+          {currentTab !== 'home' && (
+            <span 
+              className="nav-link" 
+              onClick={handleHomeClick}
+            >
+              Home
+            </span>
+          )}
         </nav>
         <button 
           className="theme-btn" 

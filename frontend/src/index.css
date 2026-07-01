@@ -1,56 +1,90 @@
-/* Custom Theme Design System */
+/* Custom Theme Design System (GitHub Inspired) */
 :root {
   /* Dark Theme Default Variables */
-  --bg-color: #0b0f19;
-  --bg-gradient: radial-gradient(circle at top right, #111827, #0b0f19);
-  --panel-bg: rgba(21, 28, 44, 0.7);
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --bg-color: #0d1117;
+  --bg-gradient: none;
+  --panel-bg: #161b22;
+  --panel-border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
   
-  --primary-color: #6366f1; /* Indigo */
-  --primary-hover: #4f46e5;
-  --accent-color: #8b5cf6; /* Violet */
-  --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --accent-gradient-hover: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --primary-color: #58a6ff; /* GitHub Blue */
+  --primary-hover: #1f6feb;
+  --accent-color: #58a6ff;
+  --accent-gradient: linear-gradient(135deg, #58a6ff, #1f6feb);
+  --accent-gradient-hover: linear-gradient(135deg, #1f6feb, #0969da);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
-  --glow-color: rgba(99, 102, 241, 0.15);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.7);
+  --glow-color: rgba(88, 166, 255, 0.15);
   
-  --danger-color: #f43f5e;
-  --success-color: #10b981;
-  --input-bg: rgba(15, 23, 42, 0.6);
-  --input-border: rgba(255, 255, 255, 0.1);
-  --input-focus: #6366f1;
+  --danger-color: #f85149;
+  --success-color: #3fb950;
+  --input-bg: #0d1117;
+  --input-border: #30363d;
+  --input-focus: #58a6ff;
 }
 
 /* Light Theme Variables */
 body.light-mode {
-  --bg-color: #f8fafc;
-  --bg-gradient: radial-gradient(circle at top right, #f1f5f9, #f8fafc);
-  --panel-bg: rgba(255, 255, 255, 0.85);
-  --panel-border: rgba(0, 0, 0, 0.08);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --bg-color: #ffffff;
+  --bg-gradient: none;
+  --panel-bg: #f6f8fa;
+  --panel-border: #d0d7de;
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
   
-  --primary-color: #4f46e5;
-  --primary-hover: #3730a3;
-  --accent-color: #7c3aed;
-  --accent-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
-  --accent-gradient-hover: linear-gradient(135deg, #3730a3, #6d28d9);
+  --primary-color: #0969da;
+  --primary-hover: #1f6feb;
+  --accent-color: #0969da;
+  --accent-gradient: linear-gradient(135deg, #0969da, #1f6feb);
+  --accent-gradient-hover: linear-gradient(135deg, #1f6feb, #58a6ff);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 10px 25px rgba(99, 102, 241, 0.08);
-  --shadow-lg: 0 20px 40px rgba(99, 102, 241, 0.12);
-  --glow-color: rgba(99, 102, 241, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.2);
+  --shadow-lg: 0 16px 32px rgba(149, 157, 165, 0.25);
+  --glow-color: rgba(9, 105, 218, 0.08);
   
-  --danger-color: #e11d48;
-  --success-color: #059669;
+  --danger-color: #cf222e;
+  --success-color: #1a7f37;
   --input-bg: #ffffff;
   --input-border: #cbd5e1;
-  --input-focus: #4f46e5;
+  --input-focus: #0969da;
+}
+
+/* Smooth Hover Scaling for Interactive Elements */
+a, button, .project-card, .skill-tag, .nav-link, .logo {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease, box-shadow 0.3s ease !important;
+}
+
+.project-card:hover {
+  transform: scale(1.05) !important;
+}
+
+.btn:hover {
+  transform: scale(1.05) !important;
+}
+
+.skill-tag:hover {
+  transform: scale(1.05) !important;
+}
+
+.logo:hover, .nav-link:hover {
+  transform: scale(1.05);
+}
+
+/* Scroll Reveal animations */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  will-change: transform, opacity;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.reveal-active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Reset and Layout */

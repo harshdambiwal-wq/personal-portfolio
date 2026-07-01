@@ -29,9 +29,11 @@ export default function Home() {
 
   return (
     <>
-      <Bio />
+      <div className="scroll-reveal">
+        <Bio />
+      </div>
       
-      <section id="projects" className="projects-section">
+      <section id="projects" className="projects-section scroll-reveal">
         <h2 className="section-title">Featured Projects</h2>
         
         {loading && (
@@ -56,7 +58,9 @@ export default function Home() {
         {!loading && !error && projects.length > 0 && (
           <div className="projects-grid">
             {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <div key={project.id} className="scroll-reveal">
+                <ProjectCard project={project} />
+              </div>
             ))}
           </div>
         )}
