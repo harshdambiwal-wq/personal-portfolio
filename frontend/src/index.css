@@ -97,8 +97,7 @@ a, button, .project-card, .skill-tag, .nav-link, .logo {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-gradient);
-  background-color: var(--bg-color);
+  background-color: #050814; /* Deep space dark base */
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
@@ -311,10 +310,10 @@ h1, h2, h3, h4, h5, h6 {
   gap: 2rem;
 }
 
-/* Project Card */
+/* Project Card (Semi-transparent Glassmorphism) */
 .project-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: rgba(22, 27, 34, 0.65) !important;
+  border: 1px solid rgba(48, 54, 61, 0.6) !important;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -410,8 +409,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .login-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: rgba(22, 27, 34, 0.65) !important;
+  border: 1px solid rgba(48, 54, 61, 0.6) !important;
   border-radius: 16px;
   padding: 2.5rem;
   width: 100%;
@@ -507,8 +506,8 @@ textarea.form-input {
 }
 
 .admin-panel {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: rgba(22, 27, 34, 0.65) !important;
+  border: 1px solid rgba(48, 54, 61, 0.6) !important;
   border-radius: 16px;
   padding: 2rem;
   box-shadow: var(--shadow-md);
@@ -1067,37 +1066,88 @@ body.light-mode .skill-tag:hover {
   transform: scale(1.1);
 }
 
-/* Hero background with dark watermark overlay */
-.hero-watermark-bg {
-  position: absolute;
+/* Fixed Full Page Background Image & Overlay */
+.global-background {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=1200&q=80');
+  width: 100vw;
+  height: 100vh;
+  background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80');
   background-size: cover;
   background-position: center;
-  z-index: 0;
-}
-
-.hero-dark-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(13, 17, 23, 0.85);
-  z-index: 1;
-}
-
-.hero-star-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  background-attachment: fixed;
+  z-index: -100;
   pointer-events: none;
-  z-index: 2;
+}
+
+.global-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 8, 20, 0.88); /* 88% opacity dark overlay */
+  z-index: -99;
+  pointer-events: none;
+}
+
+/* Very slow moving clouds effect (pure CSS, no heavy library) */
+.global-clouds {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300vw;
+  height: 100vh;
+  background: transparent;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
+    radial-gradient(circle at 60% 40%, rgba(255, 255, 255, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.015) 0%, transparent 35%);
+  z-index: -98;
+  animation: driftClouds 180s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes driftClouds {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-50vw, -10px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Floating Stars background animation */
+.star-particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -97;
+  overflow: hidden;
+}
+
+@keyframes floatStarUp {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
 }
 
 /* Ensure bio content stays on top of background layers */

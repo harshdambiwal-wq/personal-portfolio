@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function Bio() {
   const [typedName, setTypedName] = useState('');
   const fullName = "Harsh Ashish Dambiwal";
-  const starsCanvasRef = useRef(null);
 
   // Typewriter effect
   useEffect(() => {
@@ -31,73 +30,6 @@ export default function Bio() {
     };
   }, []);
 
-  // Faint background star particles effect
-  useEffect(() => {
-    const canvas = starsCanvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    const stars = [];
-    const numStars = 22; // 20-25 particles
-
-    const resizeCanvas = () => {
-      // Set to section dimensions
-      const section = canvas.closest('.bio-section');
-      if (section) {
-        canvas.width = section.clientWidth;
-        canvas.height = section.clientHeight;
-      } else {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      
-      if (stars.length === 0) {
-        for (let i = 0; i < numStars; i++) {
-          stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.12, // extremely slow drifting speeds
-            vy: (Math.random() - 0.5) * 0.12
-          });
-        }
-      }
-    };
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // low opacity (0.2)
-
-      for (let i = 0; i < stars.length; i++) {
-        const star = stars[i];
-
-        star.x += star.vx;
-        star.y += star.vy;
-
-        // Wrap around boundaries
-        if (star.x < 0) star.x = canvas.width;
-        if (star.x > canvas.width) star.x = 0;
-        if (star.y < 0) star.y = canvas.height;
-        if (star.y > canvas.height) star.y = 0;
-
-        // Draw stars as 1px dots
-        ctx.fillRect(star.x, star.y, 1, 1);
-      }
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
-
   const skills = [
     'UAV Design', 'XFLR5', 'Fusion360', 'ANSYS Workbench', 
     'ROS', 'NVIDIA Isaac Sim', 'MATLAB', 'Unity', 
@@ -105,12 +37,7 @@ export default function Bio() {
   ];
 
   return (
-    <section className="bio-section" style={{ position: 'relative', overflow: 'hidden' }}>
-      {/* Subtle watermark background layers */}
-      <div className="hero-watermark-bg" />
-      <div className="hero-dark-overlay" />
-      <canvas ref={starsCanvasRef} className="hero-star-particles" />
-
+    <section className="bio-section" style={{ position: 'relative', background: 'transparent' }}>
       <div className="bio-content">
         <div className="bio-greeting">Hello, I'm</div>
         <h1 className="bio-name">

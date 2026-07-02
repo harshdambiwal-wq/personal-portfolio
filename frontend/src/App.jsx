@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import CursorEffects from './components/CursorEffects';
+import FloatingStars from './components/FloatingStars';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('home');
@@ -64,19 +65,27 @@ export default function App() {
   };
 
   return (
-    <div className="app-container">
-      <CursorEffects />
-      <Navbar 
-        currentTab={currentTab} 
-        setCurrentTab={navigateTo} 
-        isDarkMode={isDarkMode} 
-        toggleTheme={toggleTheme}
-      />
-      <main>
-        {currentTab === 'home' && <Home />}
-        {currentTab === 'login' && <Login setCurrentTab={navigateTo} />}
-        {currentTab === 'admin' && <Admin setCurrentTab={navigateTo} />}
-      </main>
-    </div>
+    <>
+      {/* Full Page Fixed Background and Overlays */}
+      <div className="global-background" />
+      <div className="global-overlay" />
+      <div className="global-clouds" />
+      <FloatingStars />
+
+      <div className="app-container">
+        <CursorEffects />
+        <Navbar 
+          currentTab={currentTab} 
+          setCurrentTab={navigateTo} 
+          isDarkMode={isDarkMode} 
+          toggleTheme={toggleTheme}
+        />
+        <main>
+          {currentTab === 'home' && <Home />}
+          {currentTab === 'login' && <Login setCurrentTab={navigateTo} />}
+          {currentTab === 'admin' && <Admin setCurrentTab={navigateTo} />}
+        </main>
+      </div>
+    </>
   );
 }
