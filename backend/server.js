@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_12345';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
-// Ensure uploads folder exists (legacy support if needed, but not used for new projects)
+// Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -73,10 +73,10 @@ app.get('/api/projects', async (req, res) => {
   }
 });
 
-// 3. Create a Project (Admin Protected - URL based thumbnail)
+// 3. Create a Project (Admin Protected - URL based thumbnail & gallery)
 app.post('/api/projects', authenticateToken, async (req, res) => {
   try {
-    const { title, description, imageUrl, projectUrl, techStack, featured } = req.body;
+    const { title, description, imageUrl, projectUrl, techStack, featured, galleryImages, researchPaperUrl, status } = req.body;
     
     if (!title || !description || !imageUrl) {
       return res.status(400).json({ error: 'Title, description, and image URL are required' });
@@ -85,8 +85,8 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
     const featuredFlag = featured === true || featured === 'true' || featured === 1 || featured === '1' ? 1 : 0;
 
     const result = await db.run(
-      'INSERT INTO projects (title, description, imageUrl, projectUrl, techStack, featured) VALUES (?, ?, ?, ?, ?, ?)',
-      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag]
+      'INSERT INTO projects (title, description, imageUrl, projectUrl, techStack, featured, galleryImages, researchPaperUrl, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, galleryImages || '', researchPaperUrl || '', status || 'Completed']
     );
 
     const newProject = {
@@ -96,7 +96,10 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
       imageUrl,
       projectUrl: projectUrl || '',
       techStack: techStack || '',
-      featured: featuredFlag
+      featured: featuredFlag,
+      galleryImages: galleryImages || '',
+      researchPaperUrl: researchPaperUrl || '',
+      status: status || 'Completed'
     };
 
     res.status(201).json(newProject);
@@ -106,11 +109,11 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
   }
 });
 
-// 4. Update a Project (Admin Protected - URL based thumbnail)
+// 4. Update a Project (Admin Protected - URL based thumbnail & gallery)
 app.put('/api/projects/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, imageUrl, projectUrl, techStack, featured } = req.body;
+    const { title, description, imageUrl, projectUrl, techStack, featured, galleryImages, researchPaperUrl, status } = req.body;
 
     if (!title || !description || !imageUrl) {
       return res.status(400).json({ error: 'Title, description, and image URL are required' });
@@ -135,11 +138,11 @@ app.put('/api/projects/:id', authenticateToken, async (req, res) => {
     }
 
     await db.run(
-      'UPDATE projects SET title = ?, description = ?, imageUrl = ?, projectUrl = ?, techStack = ?, featured = ? WHERE id = ?',
-      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, id]
+      'UPDATE projects SET title = ?, description = ?, imageUrl = ?, projectUrl = ?, techStack = ?, featured = ?, galleryImages = ?, researchPaperUrl = ?, status = ? WHERE id = ?',
+      [title, description, imageUrl, projectUrl || '', techStack || '', featuredFlag, galleryImages || '', researchPaperUrl || '', status || 'Completed', id]
     );
 
-    return res.json({ id, title, description, imageUrl, projectUrl, techStack, featured: featuredFlag });
+    return res.json({ id, title, description, imageUrl, projectUrl, techStack, featured: featuredFlag, galleryImages, researchPaperUrl, status });
   } catch (err) {
     console.error('Error updating project:', err);
     res.status(500).json({ error: 'Database error updating project' });

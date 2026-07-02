@@ -11,6 +11,9 @@ export default function Admin({ setCurrentTab }) {
   const [techStack, setTechStack] = useState('');
   const [featured, setFeatured] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [galleryImages, setGalleryImages] = useState('');
+  const [researchPaperUrl, setResearchPaperUrl] = useState('');
+  const [status, setStatus] = useState('Completed');
   
   // Edit mode tracking
   const [editMode, setEditMode] = useState(false);
@@ -59,6 +62,9 @@ export default function Admin({ setCurrentTab }) {
     setTechStack(project.techStack || '');
     setFeatured(project.featured === 1);
     setImageUrl(project.imageUrl || '');
+    setGalleryImages(project.galleryImages || '');
+    setResearchPaperUrl(project.researchPaperUrl || '');
+    setStatus(project.status || 'Completed');
     setSubmitError(null);
     setSubmitSuccess(false);
   };
@@ -76,6 +82,9 @@ export default function Admin({ setCurrentTab }) {
     setTechStack('');
     setFeatured(false);
     setImageUrl('');
+    setGalleryImages('');
+    setResearchPaperUrl('');
+    setStatus('Completed');
   };
 
   const handleSubmit = async (e) => {
@@ -95,7 +104,10 @@ export default function Admin({ setCurrentTab }) {
       projectUrl,
       techStack,
       featured,
-      imageUrl
+      imageUrl,
+      galleryImages,
+      researchPaperUrl,
+      status
     };
 
     try {
@@ -217,6 +229,20 @@ export default function Admin({ setCurrentTab }) {
             </div>
 
             <div className="form-group">
+              <label className="form-label" htmlFor="status">Project Status *</label>
+              <select 
+                id="status" 
+                className="form-input" 
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                required
+              >
+                <option value="Completed">Completed</option>
+                <option value="Ongoing">Ongoing</option>
+              </select>
+            </div>
+
+            <div className="form-group">
               <label className="form-label" htmlFor="techStack">Tech Stack / Tools (Comma-separated)</label>
               <input 
                 type="text" 
@@ -237,6 +263,18 @@ export default function Admin({ setCurrentTab }) {
                 placeholder="https://github.com/username/project"
                 value={projectUrl}
                 onChange={(e) => setProjectUrl(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="researchPaperUrl">Research Paper URL (Optional)</label>
+              <input 
+                type="url" 
+                id="researchPaperUrl" 
+                className="form-input" 
+                placeholder="https://arxiv.org/abs/..."
+                value={researchPaperUrl}
+                onChange={(e) => setResearchPaperUrl(e.target.value)}
               />
             </div>
 
@@ -266,7 +304,18 @@ export default function Admin({ setCurrentTab }) {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="galleryImages">Gallery Images (Comma-separated URLs)</label>
+              <textarea 
+                id="galleryImages" 
+                className="form-input" 
+                placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+                value={galleryImages}
+                onChange={(e) => setGalleryImages(e.target.value)}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
               <button 
                 type="submit" 
                 className="btn btn-primary" 
@@ -312,11 +361,16 @@ export default function Admin({ setCurrentTab }) {
                     />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span className="admin-project-name">{project.title}</span>
-                      {project.featured === 1 && (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: '600' }}>
-                          ⭐ Featured
+                      <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
+                        <span className={`status-badge-inline status-${(project.status || 'Completed').toLowerCase()}`} style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
+                          {project.status || 'Completed'}
                         </span>
-                      )}
+                        {project.featured === 1 && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: '600' }}>
+                            ⭐ Featured
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>

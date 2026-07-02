@@ -238,7 +238,7 @@ export default function CursorEffects() {
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(88, 166, 255, 0.08) 0%, rgba(88, 166, 255, 0) 70%)',
           pointerEvents: 'none',
-          zIndex: 9997,
+          zIndex: 99999,
           willChange: 'transform'
         }}
       />
@@ -252,7 +252,7 @@ export default function CursorEffects() {
           left: 0,
           fontSize: '1.4rem',
           pointerEvents: 'none',
-          zIndex: 9999,
+          zIndex: 100001,
           willChange: 'transform',
           transition: 'opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)',
           userSelect: 'none',
@@ -274,7 +274,7 @@ export default function CursorEffects() {
           backgroundColor: '#58a6ff',
           borderRadius: '50%',
           pointerEvents: 'none',
-          zIndex: 9998,
+          zIndex: 100000,
           boxShadow: '0 0 10px rgba(88, 166, 255, 0.8), 0 0 2px #ffffff',
           willChange: 'transform',
           transform: 'translate3d(-20px, -20px, 0)'

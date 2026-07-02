@@ -19,6 +19,9 @@ export default function ProjectCard({ project, onOpenDetails }) {
         {project.featured === 1 && (
           <span className="featured-badge">⭐ Featured</span>
         )}
+        <span className={`status-badge status-${(project.status || 'Completed').toLowerCase()}`}>
+          {project.status || 'Completed'}
+        </span>
       </div>
       <div className="project-info">
         <h3 className="project-card-title">{project.title}</h3>

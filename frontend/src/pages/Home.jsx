@@ -8,6 +8,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/projects`)
@@ -94,65 +95,131 @@ export default function Home() {
       </section>
 
       {/* Project Details Modal (Single Project Page / View) */}
-      {selectedProject && (
+      {selectedProject && (() => {
+        const gallery = selectedProject.galleryImages
+          ? selectedProject.galleryImages.split(',').map((url) => url.trim()).filter((url) => url.length > 0)
+          : [];
+
+        return (
+          <div 
+            className="modal-overlay" 
+            onClick={() => setSelectedProject(null)}
+          >
+            <div 
+              className="modal-content" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                className="modal-close-btn" 
+                onClick={() => setSelectedProject(null)}
+                aria-label="Close details"
+              >
+                &times;
+              </button>
+              
+              <img 
+                src={selectedProject.imageUrl.startsWith('http') ? selectedProject.imageUrl : `${API_BASE}${selectedProject.imageUrl}`} 
+                alt={selectedProject.title} 
+                className="modal-image"
+              />
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span className={`status-badge status-${(selectedProject.status || 'Completed').toLowerCase()}`} style={{ position: 'static' }}>
+                  {selectedProject.status || 'Completed'}
+                </span>
+              </div>
+
+              <h2 className="project-card-title" style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>
+                {selectedProject.title}
+              </h2>
+              
+              <p className="project-card-desc" style={{ fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                {selectedProject.description}
+              </p>
+
+              {/* Tools & Skills Used Section */}
+              <h3 className="detail-section-title">Tools &amp; Skills Used</h3>
+              <div className="detail-tags">
+                {selectedProject.techStack ? (
+                  selectedProject.techStack.split(',').map((tag) => tag.trim()).filter((tag) => tag.length > 0).map((tag, index) => (
+                    <span key={index} className="detail-tag-chip">
+                      <span className="detail-tag-dot" />
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>None specified</span>
+                )}
+              </div>
+
+              {/* Image Gallery Section */}
+              {gallery.length > 0 && (
+                <>
+                  <h3 className="detail-gallery-title">Project Gallery</h3>
+                  <div className="detail-gallery-grid">
+                    {gallery.map((imgUrl, index) => (
+                      <div 
+                        key={index} 
+                        className="gallery-thumb-container" 
+                        onClick={() => setLightboxImage(imgUrl)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <img src={imgUrl} alt={`Gallery view ${index + 1}`} className="gallery-thumb" />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '2rem' }}>
+                {selectedProject.projectUrl && (
+                  <a 
+                    href={selectedProject.projectUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn btn-primary project-view-btn"
+                    style={{ width: '100%', padding: '0.85rem', textAlign: 'center', display: 'block' }}
+                  >
+                    Visit Project Link
+                  </a>
+                )}
+                
+                {selectedProject.researchPaperUrl && (
+                  <a 
+                    href={selectedProject.researchPaperUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn btn-secondary"
+                    style={{ width: '100%', padding: '0.85rem', textAlign: 'center', display: 'block' }}
+                  >
+                    📄 Read Research Paper
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Fullscreen Lightbox Overlay */}
+      {lightboxImage && (
         <div 
-          className="modal-overlay" 
-          onClick={() => setSelectedProject(null)}
+          className="lightbox-overlay" 
+          onClick={() => setLightboxImage(null)}
         >
           <div 
-            className="modal-content" 
+            className="lightbox-content" 
             onClick={(e) => e.stopPropagation()}
           >
             <button 
-              className="modal-close-btn" 
-              onClick={() => setSelectedProject(null)}
-              aria-label="Close details"
+              className="lightbox-close-btn" 
+              onClick={() => setLightboxImage(null)}
+              aria-label="Close image"
             >
               &times;
             </button>
-            
-            <img 
-              src={selectedProject.imageUrl.startsWith('http') ? selectedProject.imageUrl : `${API_BASE}${selectedProject.imageUrl}`} 
-              alt={selectedProject.title} 
-              className="modal-image"
-            />
-            
-            <h2 className="project-card-title" style={{ fontSize: '1.75rem', marginBottom: '1rem' }}>
-              {selectedProject.title}
-            </h2>
-            
-            <p className="project-card-desc" style={{ fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-              {selectedProject.description}
-            </p>
-
-            {/* Tools & Skills Used Section */}
-            <h3 className="detail-section-title">Tools &amp; Skills Used</h3>
-            <div className="detail-tags">
-              {selectedProject.techStack ? (
-                selectedProject.techStack.split(',').map((tag) => tag.trim()).filter((tag) => tag.length > 0).map((tag, index) => (
-                  <span key={index} className="detail-tag-chip">
-                    <span className="detail-tag-dot" />
-                    {tag}
-                  </span>
-                ))
-              ) : (
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>None specified</span>
-              )}
-            </div>
-
-            {selectedProject.projectUrl && (
-              <div style={{ marginTop: '2rem' }}>
-                <a 
-                  href={selectedProject.projectUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="btn btn-primary project-view-btn"
-                  style={{ width: '100%', padding: '0.85rem' }}
-                >
-                  Visit Project Link
-                </a>
-              </div>
-            )}
+            <img src={lightboxImage} alt="Fullscreen Project View" className="lightbox-image" />
           </div>
         </div>
       )}
